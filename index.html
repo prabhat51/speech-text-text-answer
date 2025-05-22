@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voice Chat with ChatGPT</title>
+</head>
+<body>
+  <h2>🎤 Speak to ChatGPT</h2>
+  <button id="record">Start Recording</button>
+  <p><strong>Transcript:</strong> <span id="transcript">...</span></p>
+  <p><strong>Response:</strong> <span id="response">...</span></p>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    document.getElementById("record").onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.start();
+      audioChunks = [];
+
+      mediaRecorder.addEventListener("dataavailable", event => {
+        audioChunks.push(event.data);
+      });
+
+      mediaRecorder.addEventListener("stop", async () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.wav");
+
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById("transcript").innerText = result.transcript || "N/A";
+        document.getElementById("response").innerText = result.response || "Error";
+      });
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+      }, 5000); // record for 5 seconds
+    };
+  </script>
+</body>
+</html>
