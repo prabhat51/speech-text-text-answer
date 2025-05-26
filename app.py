@@ -1,4 +1,4 @@
-# ASSEMBLYAI_API_KEY = "48a229333e45454297e34bf2586e97ed"
+# ASSEMBLYAI_API_KEY = "7a09b10f4422499181737d9e01acd315"
 # OPENAI_API_KEY = "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"
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -12,7 +12,7 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 openai.api_key = "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"
-ASSEMBLYAI_API_KEY = "48a229333e45454297e34bf2586e97ed"
+ASSEMBLYAI_API_KEY = "7a09b10f4422499181737d9e01acd315"
 
 # Serve index.html
 @app.route("/")
