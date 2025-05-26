@@ -7,7 +7,10 @@
 </head>
 <body>
   <h2>🎤 Speak to ChatGPT</h2>
-  <button id="record">Start Recording</button>
+
+  <button id="start">Start Recording</button>
+  <button id="stop" disabled>Stop Recording</button>
+
   <p><strong>Transcript:</strong> <span id="transcript">...</span></p>
   <p><strong>Response:</strong> <span id="response">...</span></p>
 
@@ -15,18 +18,26 @@
     let mediaRecorder;
     let audioChunks = [];
 
-    document.getElementById("record").onclick = async () => {
+    const startBtn = document.getElementById("start");
+    const stopBtn = document.getElementById("stop");
+
+    startBtn.onclick = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream);
 
-      mediaRecorder.start();
       audioChunks = [];
+      mediaRecorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
 
       mediaRecorder.addEventListener("dataavailable", event => {
         audioChunks.push(event.data);
       });
 
       mediaRecorder.addEventListener("stop", async () => {
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+
         const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
         const formData = new FormData();
         formData.append("audio", audioBlob, "recording.wav");
@@ -40,10 +51,12 @@
         document.getElementById("transcript").innerText = result.transcript || "N/A";
         document.getElementById("response").innerText = result.response || "Error";
       });
+    };
 
-      setTimeout(() => {
+    stopBtn.onclick = () => {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
         mediaRecorder.stop();
-      }, 5000); // record for 5 seconds
+      }
     };
   </script>
 </body>
